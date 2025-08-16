@@ -15,16 +15,19 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 13%;
 
-    --primary: 164 48% 22%;
-    --primary-foreground: 0 0% 98%;
+    /* Updated primary to golden yellow #EEBB51 */
+    --primary: 45 66% 62%;
+    --primary-foreground: 0 0% 13%;
 
-    --secondary: 45 48% 62%;
-    --secondary-foreground: 0 0% 13%;
+    /* Updated secondary to deep green #205C57 */
+    --secondary: 172 48% 24%;
+    --secondary-foreground: 0 0% 98%;
 
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
 
-    --accent: 45 48% 62%;
+    /* Updated accent to golden yellow for emphasis */
+    --accent: 45 66% 62%;
     --accent-foreground: 0 0% 13%;
 
     --destructive: 0 84% 60%;
@@ -32,18 +35,18 @@
 
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    --ring: 164 48% 22%;
+    --ring: 45 66% 62%;
 
     --radius: 1rem;
 
-    /* Custom design tokens */
-    --yellow-primary: 45 48% 62%;
-    --yellow-light: 45 58% 75%;
-    --yellow-dark: 45 38% 45%;
+    /* Updated custom design tokens */
+    --yellow-primary: 45 66% 62%;
+    --yellow-light: 45 76% 75%;
+    --yellow-dark: 45 56% 48%;
     
-    --green-primary: 164 48% 22%;
-    --green-light: 164 38% 35%;
-    --green-dark: 164 58% 15%;
+    --green-primary: 172 48% 24%;
+    --green-light: 172 38% 35%;
+    --green-dark: 172 58% 15%;
     
     --text-primary: 0 0% 13%;
     --text-secondary: 0 0% 45%;
@@ -57,12 +60,14 @@
   body {
     @apply bg-background text-foreground font-body;
     font-kerning: normal;
+    color: hsl(var(--text-primary));
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-title;
     font-kerning: normal;
     letter-spacing: -0.025em;
+    color: hsl(var(--text-primary));
   }
 
   .text-tight {
@@ -76,63 +81,95 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-4 rounded-2xl font-medium transition-all duration-200 hover:scale-[1.02] shadow-md hover:shadow-lg border-2 border-transparent;
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-xl border-2 border-transparent;
+    font-family: 'Noto Sans', sans-serif;
+    letter-spacing: -0.5px;
   }
 
   .btn-secondary {
-    @apply bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-4 rounded-2xl font-medium transition-all duration-200 hover:scale-[1.02];
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/90 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-xl border-2 border-transparent;
+    font-family: 'Noto Sans', sans-serif;
+    letter-spacing: -0.5px;
   }
 
   .btn-accent {
-    @apply bg-accent text-accent-foreground hover:bg-accent/90 px-8 py-4 rounded-2xl font-medium transition-all duration-200 hover:scale-[1.02] shadow-md hover:shadow-lg border-2 border-transparent;
+    @apply bg-accent text-accent-foreground hover:bg-accent/90 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-xl border-2 border-transparent;
+    font-family: 'Noto Sans', sans-serif;
+    letter-spacing: -0.5px;
+  }
+
+  .btn-outline {
+    @apply bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-[1.02] shadow-md hover:shadow-lg;
+    font-family: 'Noto Sans', sans-serif;
+    letter-spacing: -0.5px;
   }
 
   .card-interactive {
-    @apply bg-card rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.01] border border-border/50 backdrop-blur-sm;
+    @apply bg-card rounded-3xl p-6 shadow-soft hover:shadow-strong transition-all duration-300 hover:scale-[1.01] border border-border/30 backdrop-blur-sm;
   }
 
   .card-elevated {
-    @apply bg-card rounded-2xl p-8 shadow-lg border border-border/30 backdrop-blur-sm;
+    @apply bg-card rounded-3xl p-8 shadow-strong border border-border/20 backdrop-blur-sm;
+  }
+
+  .card-match {
+    @apply bg-card rounded-3xl p-0 shadow-soft hover:shadow-strong transition-all duration-500 hover:scale-[1.02] border border-border/30 backdrop-blur-sm overflow-hidden cursor-pointer;
   }
 
   .input-field {
-    @apply w-full px-4 py-3 rounded-xl border border-input bg-background focus:ring-2 focus:ring-accent/50 focus:border-accent/50 outline-none transition-all duration-200 placeholder:text-muted-foreground;
+    @apply w-full px-6 py-4 rounded-2xl border-2 border-input bg-background focus:ring-2 focus:ring-primary/50 focus:border-primary/50 outline-none transition-all duration-300 placeholder:text-muted-foreground text-base;
+    font-family: 'Noto Sans', sans-serif;
   }
 
   .chip-option {
-    @apply px-4 py-2 rounded-full border-2 border-border bg-background hover:border-accent hover:bg-accent/10 cursor-pointer transition-all duration-200 text-sm font-medium hover:scale-[1.02];
+    @apply px-6 py-3 rounded-2xl border-2 border-border bg-background hover:border-primary hover:bg-primary/10 cursor-pointer transition-all duration-300 text-base font-medium hover:scale-[1.02] hover:shadow-md;
+    font-family: 'Noto Sans', sans-serif;
   }
 
   .chip-selected {
-    @apply border-accent bg-accent text-accent-foreground shadow-sm;
+    @apply border-primary bg-primary text-primary-foreground shadow-md;
   }
 
   .progress-bar {
-    @apply h-3 bg-muted rounded-full overflow-hidden shadow-inner;
+    @apply h-4 bg-muted rounded-full overflow-hidden shadow-inner;
   }
 
   .progress-fill {
-    @apply h-full bg-gradient-to-r from-accent to-accent/80 rounded-full transition-all duration-500 ease-out shadow-sm;
-  }
-
-  .gradient-accent {
-    @apply bg-gradient-to-br from-accent via-accent to-accent/80;
+    @apply h-full bg-gradient-to-r from-primary via-primary to-primary/90 rounded-full transition-all duration-700 ease-out shadow-sm;
   }
 
   .gradient-primary {
     @apply bg-gradient-to-br from-primary via-primary to-primary/80;
   }
 
+  .gradient-secondary {
+    @apply bg-gradient-to-br from-secondary via-secondary to-secondary/80;
+  }
+
   .text-gradient {
-    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
   }
 
   .avatar-ring {
-    @apply ring-4 ring-accent/20 ring-offset-2 ring-offset-background;
+    @apply ring-4 ring-primary/30 ring-offset-4 ring-offset-background;
   }
 
   .match-compatibility {
-    @apply bg-gradient-to-r from-accent/10 to-primary/10 text-primary px-3 py-1 rounded-full text-sm font-semibold border border-accent/20;
+    @apply bg-gradient-to-r from-primary/20 to-secondary/20 text-primary px-4 py-2 rounded-full text-sm font-bold border-2 border-primary/30;
+    font-family: 'Noto Sans', sans-serif;
+    letter-spacing: -0.5px;
+  }
+
+  .breadcrumb {
+    @apply flex items-center space-x-2 text-sm text-muted-foreground;
+  }
+
+  .breadcrumb-item {
+    @apply hover:text-foreground transition-colors duration-200 cursor-pointer;
+  }
+
+  .breadcrumb-separator {
+    @apply text-muted-foreground/50;
   }
 }
 
@@ -166,5 +203,13 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  .shadow-soft {
+    box-shadow: 0 2px 15px -3px rgba(238, 187, 81, 0.1), 0 10px 20px -2px rgba(32, 92, 87, 0.05);
+  }
+
+  .shadow-strong {
+    box-shadow: 0 10px 40px -10px rgba(238, 187, 81, 0.2), 0 20px 25px -5px rgba(32, 92, 87, 0.1);
   }
 }

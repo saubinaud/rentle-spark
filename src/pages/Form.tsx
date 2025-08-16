@@ -1,39 +1,35 @@
 
 import { useNavigate } from 'react-router-dom';
 import { useFormStore } from '@/stores/useFormStore';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import AppHeader from '@/components/AppHeader';
 import Stepper from '@/components/Stepper';
-import QuestionCard from '@/components/QuestionCard';
 import TransitionView from '@/components/TransitionView';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const steps = ['General', 'Big Five', 'Dark Triad', 'MBTI', 'Zodiac'];
 
 const questions = {
   0: {
-    question: "¿Qué actividades disfrutas más en tu tiempo libre?",
+    question: "¿Qué actividad disfrutas más en tu tiempo libre?",
     options: ["Leer libros", "Salir con amigos", "Hacer ejercicio", "Ver series", "Viajar", "Cocinar"],
-    multiSelect: true
   },
   1: {
     question: "¿Cómo te describes en situaciones sociales?",
     options: ["Muy extrovertido", "Algo extrovertido", "Equilibrado", "Algo introvertido", "Muy introvertido"],
-    multiSelect: false
   },
   2: {
     question: "¿Qué tan importante es para ti ganar en una competencia?",
     options: ["Extremadamente importante", "Muy importante", "Moderadamente importante", "Poco importante", "Nada importante"],
-    multiSelect: false
   },
   3: {
     question: "¿Prefieres planificar con anticipación o ser espontáneo?",
     options: ["Siempre planifico", "Generalmente planifico", "Depende de la situación", "Generalmente espontáneo", "Siempre espontáneo"],
-    multiSelect: false
   },
   4: {
     question: "¿Cuál es tu signo zodiacal?",
     options: ["Aries", "Tauro", "Géminis", "Cáncer", "Leo", "Virgo", "Libra", "Escorpio", "Sagitario", "Capricornio", "Acuario", "Piscis"],
-    multiSelect: false
   }
 };
 
@@ -51,22 +47,13 @@ const Form = () => {
     updateAnswers 
   } = useFormStore();
 
-  const currentAnswers = [general, big5, dark, mbti, [zodiac].filter(Boolean)][currentStep];
+  const currentAnswer = [general, big5, dark, mbti, zodiac][currentStep];
   const currentQuestion = questions[currentStep as keyof typeof questions];
 
   const handleSelect = (option: string) => {
     const stepKeys = ['general', 'big5', 'dark', 'mbti', 'zodiac'];
     const stepKey = stepKeys[currentStep];
-    
-    if (currentQuestion.multiSelect) {
-      const current = currentAnswers as string[];
-      const newAnswers = current.includes(option)
-        ? current.filter(a => a !== option)
-        : [...current, option];
-      updateAnswers(stepKey, newAnswers);
-    } else {
-      updateAnswers(stepKey, currentStep === 4 ? option : [option]);
-    }
+    updateAnswers(stepKey, option);
   };
 
   const handleNext = () => {
@@ -77,7 +64,7 @@ const Form = () => {
     }
   };
 
-  const canProceed = currentAnswers.length > 0;
+  const canProceed = currentAnswer.length > 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -97,27 +84,59 @@ const Form = () => {
             {/* Questions */}
             <div>
               <TransitionView currentKey={currentStep}>
-                <QuestionCard
-                  question={currentQuestion.question}
-                  options={currentQuestion.options}
-                  selectedOptions={currentAnswers as string[]}
-                  onSelect={handleSelect}
-                  multiSelect={currentQuestion.multiSelect}
-                />
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="card-elevated"
+                >
+                  <h2 className="text-3xl font-bold font-title mb-8 text-gradient kerning-tight">
+                    {currentQuestion.question}
+                  </h2>
+                  
+                  <RadioGroup
+                    value={currentAnswer}
+                    onValueChange={handleSelect}
+                    className="space-y-4"
+                  >
+                    {currentQuestion.options.map((option, index) => (
+                      <motion.div
+                        key={option}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex items-center space-x-4 p-4 rounded-2xl border-2 border-border hover:border-primary/50 transition-all duration-200 hover:bg-primary/5 cursor-pointer"
+                        onClick={() => handleSelect(option)}
+                      >
+                        <RadioGroupItem value={option} id={option} className="text-primary" />
+                        <label 
+                          htmlFor={option} 
+                          className="text-lg font-medium cursor-pointer flex-1"
+                        >
+                          {option}
+                        </label>
+                      </motion.div>
+                    ))}
+                  </RadioGroup>
+                </motion.div>
               </TransitionView>
             </div>
 
             {/* Illustration */}
             <div className="hidden lg:block">
               <TransitionView currentKey={currentStep}>
-                <div className="bg-gradient-to-br from-accent/10 to-accent/20 rounded-2xl p-12 h-96 flex items-center justify-center">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="bg-gradient-to-br from-primary/10 to-secondary/20 rounded-3xl p-12 h-96 flex items-center justify-center"
+                >
                   <div className="text-center">
-                    <div className="w-24 h-24 bg-accent/20 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-                      <span className="text-2xl font-bold text-accent">{currentStep + 1}</span>
+                    <div className="w-32 h-32 gradient-primary rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-strong">
+                      <span className="text-4xl font-bold text-primary-foreground">{currentStep + 1}</span>
                     </div>
-                    <h3 className="text-xl font-semibold text-accent">{steps[currentStep]}</h3>
+                    <h3 className="text-2xl font-bold text-primary font-title">{steps[currentStep]}</h3>
+                    <p className="text-muted-foreground mt-2">Paso {currentStep + 1} de {steps.length}</p>
                   </div>
-                </div>
+                </motion.div>
               </TransitionView>
             </div>
           </div>
@@ -127,19 +146,25 @@ const Form = () => {
             <button
               onClick={prevStep}
               disabled={currentStep === 0}
-              className="btn-secondary flex items-center space-x-2 disabled:opacity-50"
+              className="btn-outline flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-5 h-5" />
               <span>Anterior</span>
             </button>
+
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">
+                Pregunta {currentStep + 1} de {steps.length}
+              </p>
+            </div>
 
             <button
               onClick={handleNext}
               disabled={!canProceed}
-              className="btn-primary flex items-center space-x-2 disabled:opacity-50"
+              className="btn-primary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span>{currentStep === 4 ? 'Ver Resultados' : 'Siguiente'}</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </div>

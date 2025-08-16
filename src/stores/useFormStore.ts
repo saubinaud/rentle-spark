@@ -3,23 +3,23 @@ import { create } from 'zustand';
 
 interface FormState {
   currentStep: number;
-  general: string[];
-  big5: string[];
-  dark: string[];
-  mbti: string[];
+  general: string;
+  big5: string;
+  dark: string;
+  mbti: string;
   zodiac: string;
   nextStep: () => void;
   prevStep: () => void;
-  updateAnswers: (step: string, answers: string[] | string) => void;
+  updateAnswers: (step: string, answer: string) => void;
   resetForm: () => void;
 }
 
 export const useFormStore = create<FormState>((set, get) => ({
   currentStep: 0,
-  general: [],
-  big5: [],
-  dark: [],
-  mbti: [],
+  general: '',
+  big5: '',
+  dark: '',
+  mbti: '',
   zodiac: '',
   nextStep: () => {
     const currentStep = get().currentStep;
@@ -33,19 +33,19 @@ export const useFormStore = create<FormState>((set, get) => ({
       set({ currentStep: currentStep - 1 });
     }
   },
-  updateAnswers: (step, answers) => {
+  updateAnswers: (step, answer) => {
     set((state) => ({
       ...state,
-      [step]: answers,
+      [step]: answer,
     }));
   },
   resetForm: () => {
     set({
       currentStep: 0,
-      general: [],
-      big5: [],
-      dark: [],
-      mbti: [],
+      general: '',
+      big5: '',
+      dark: '',
+      mbti: '',
       zodiac: '',
     });
   },

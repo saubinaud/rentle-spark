@@ -4,8 +4,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useMatchStore } from '@/stores/useMatchStore';
 import AppHeader from '@/components/AppHeader';
+import Breadcrumb from '@/components/Breadcrumb';
 import Modal from '@/components/Modal';
-import { ArrowLeft, Heart, MapPin, GraduationCap, Eye, Download } from 'lucide-react';
+import { MapPin, GraduationCap, Heart, Eye, Download, Sparkles } from 'lucide-react';
 
 const Profile = () => {
   const { id } = useParams();
@@ -19,28 +20,27 @@ const Profile = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold mb-4">Perfil no encontrado</h1>
+          <h1 className="text-3xl font-bold mb-6 font-title">Perfil no encontrado</h1>
           <button onClick={() => navigate('/results')} className="btn-primary">
-            Volver a resultados
+            Volver a matches
           </button>
         </div>
       </div>
     );
   }
 
+  const breadcrumbItems = [
+    { label: 'Matches', path: '/results' },
+    { label: profile.name }
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <AppHeader />
       
       <div className="pt-24 px-6">
-        <div className="container mx-auto max-w-4xl">
-          <button
-            onClick={() => navigate('/results')}
-            className="flex items-center space-x-2 text-muted-foreground hover:text-foreground mb-8 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Volver a matches</span>
-          </button>
+        <div className="container mx-auto max-w-6xl">
+          <Breadcrumb items={breadcrumbItems} />
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -49,113 +49,120 @@ const Profile = () => {
           >
             <div className="grid lg:grid-cols-3 gap-8">
               {/* Profile Main */}
-              <div className="lg:col-span-2 space-y-6">
-                <div className="card-interactive">
-                  <div className="flex items-start space-x-6">
-                    <div className="w-24 h-24 bg-gradient-to-br from-accent/20 to-accent/40 rounded-2xl flex items-center justify-center text-accent font-bold text-2xl">
+              <div className="lg:col-span-2 space-y-8">
+                {/* Header Card */}
+                <div className="card-elevated">
+                  <div className="flex flex-col sm:flex-row items-start space-y-6 sm:space-y-0 sm:space-x-8">
+                    <div className="w-32 h-32 gradient-primary rounded-3xl flex items-center justify-center text-primary-foreground font-bold text-4xl shadow-strong mx-auto sm:mx-0">
                       {profile.name.charAt(0)}
                     </div>
                     
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-4 mb-2">
-                        <h1 className="text-3xl font-bold font-title">{profile.name}</h1>
-                        <div className="bg-accent/10 text-accent px-3 py-1 rounded-full text-sm font-medium">
-                          {profile.compatibility}% match
+                    <div className="flex-1 text-center sm:text-left">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4">
+                        <h1 className="text-4xl font-bold font-title kerning-tight">{profile.name}</h1>
+                        <div className="match-compatibility mt-2 sm:mt-0">
+                          <div className="flex items-center space-x-1">
+                            <Sparkles className="w-4 h-4" />
+                            <span>{profile.compatibility}% match</span>
+                          </div>
                         </div>
                       </div>
                       
-                      <div className="flex flex-wrap gap-4 text-muted-foreground mb-4">
-                        <div className="flex items-center space-x-2">
-                          <GraduationCap className="w-4 h-4" />
-                          <span>{profile.university}</span>
+                      <div className="flex flex-wrap justify-center sm:justify-start gap-4 text-muted-foreground mb-6">
+                        <div className="flex items-center space-x-2 bg-muted/50 px-4 py-2 rounded-xl">
+                          <GraduationCap className="w-4 h-4 text-primary" />
+                          <span className="font-medium">{profile.university}</span>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <MapPin className="w-4 h-4" />
-                          <span>{profile.city}</span>
+                        <div className="flex items-center space-x-2 bg-muted/50 px-4 py-2 rounded-xl">
+                          <MapPin className="w-4 h-4 text-primary" />
+                          <span className="font-medium">{profile.city}</span>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Heart className="w-4 h-4" />
-                          <span>{profile.age} años</span>
+                        <div className="flex items-center space-x-2 bg-muted/50 px-4 py-2 rounded-xl">
+                          <Heart className="w-4 h-4 text-primary" />
+                          <span className="font-medium">{profile.age} años</span>
                         </div>
                       </div>
 
-                      <p className="text-muted-foreground leading-relaxed">
+                      <p className="text-muted-foreground leading-relaxed text-lg">
                         {profile.teaser}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="card-interactive">
-                  <h2 className="text-xl font-semibold mb-4">Personalidad</h2>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="bg-muted/30 rounded-xl p-4">
-                      <div className="text-sm text-muted-foreground mb-1">MBTI</div>
-                      <div className="font-semibold text-lg">{profile.mbti}</div>
+                {/* Personality Card */}
+                <div className="card-elevated">
+                  <h2 className="text-2xl font-bold font-title mb-6 text-gradient">Personalidad</h2>
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20">
+                      <div className="text-sm text-primary font-semibold mb-2">TIPO MBTI</div>
+                      <div className="font-bold text-2xl text-primary">{profile.mbti}</div>
                     </div>
-                    <div className="bg-muted/30 rounded-xl p-4">
-                      <div className="text-sm text-muted-foreground mb-1">Signo</div>
-                      <div className="font-semibold text-lg">{profile.zodiac}</div>
+                    <div className="bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-2xl p-6 border border-secondary/20">
+                      <div className="text-sm text-secondary font-semibold mb-2">SIGNO ZODIACAL</div>
+                      <div className="font-bold text-2xl text-secondary">{profile.zodiac}</div>
                     </div>
                   </div>
                 </div>
 
-                <div className="card-interactive">
-                  <h2 className="text-xl font-semibold mb-4">Resumen de Compatibilidad</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Tienes una alta compatibilidad con {profile.name} basada en sus respuestas del Big Five y MBTI. 
-                    Ambos comparten valores similares en apertura a experiencias y consciencia. 
-                    Sus personalidades se complementan muy bien, especialmente en aspectos sociales y de comunicación.
-                  </p>
+                {/* Compatibility Summary */}
+                <div className="card-elevated">
+                  <h2 className="text-2xl font-bold font-title mb-6 text-gradient">Análisis de Compatibilidad</h2>
+                  <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl p-6 border border-primary/10">
+                    <p className="text-muted-foreground leading-relaxed text-lg">
+                      Tienes una <strong className="text-primary">alta compatibilidad del {profile.compatibility}%</strong> con {profile.name} basada en sus respuestas del Big Five y MBTI. 
+                      Ambos comparten valores similares en apertura a experiencias y consciencia. 
+                      Sus personalidades se complementan muy bien, especialmente en aspectos sociales y de comunicación.
+                    </p>
+                  </div>
                 </div>
               </div>
 
               {/* Actions Sidebar */}
-              <div className="space-y-6">
-                <div className="card-interactive">
-                  <h3 className="font-semibold mb-4">Acciones</h3>
-                  <div className="space-y-3">
+              <div className="space-y-8">
+                {/* Actions Card */}
+                <div className="card-elevated">
+                  <h3 className="font-bold text-xl mb-6 font-title">Acciones</h3>
+                  <div className="space-y-4">
                     <button
                       onClick={() => setShowModal(true)}
-                      className="w-full btn-secondary flex items-center justify-center space-x-2"
+                      className="w-full btn-outline flex items-center justify-center space-x-3"
                     >
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-5 h-5" />
                       <span>Ver comparación gratuita</span>
                     </button>
                     
-                    <button className="w-full btn-primary flex items-center justify-center space-x-2">
-                      <Download className="w-4 h-4" />
+                    <button className="w-full btn-primary flex items-center justify-center space-x-3">
+                      <Download className="w-5 h-5" />
                       <span>Descargar reporte premium</span>
                     </button>
                   </div>
                 </div>
 
-                <div className="card-interactive">
-                  <h3 className="font-semibold mb-4">Compatibilidad Detallada</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Comunicación</span>
-                      <div className="flex-1 mx-3 bg-muted rounded-full h-2">
-                        <div className="bg-accent h-2 rounded-full" style={{ width: '90%' }} />
+                {/* Detailed Compatibility */}
+                <div className="card-elevated">
+                  <h3 className="font-bold text-xl mb-6 font-title">Compatibilidad Detallada</h3>
+                  <div className="space-y-6">
+                    {[
+                      { label: 'Comunicación', value: 90 },
+                      { label: 'Valores', value: 85 },
+                      { label: 'Intereses', value: 78 }
+                    ].map(item => (
+                      <div key={item.label}>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium">{item.label}</span>
+                          <span className="font-bold text-primary">{item.value}%</span>
+                        </div>
+                        <div className="progress-bar">
+                          <motion.div 
+                            className="progress-fill" 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${item.value}%` }}
+                            transition={{ duration: 1, delay: 0.5 }}
+                          />
+                        </div>
                       </div>
-                      <span className="text-sm font-medium">90%</span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Valores</span>
-                      <div className="flex-1 mx-3 bg-muted rounded-full h-2">
-                        <div className="bg-accent h-2 rounded-full" style={{ width: '85%' }} />
-                      </div>
-                      <span className="text-sm font-medium">85%</span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Intereses</span>
-                      <div className="flex-1 mx-3 bg-muted rounded-full h-2">
-                        <div className="bg-accent h-2 rounded-full" style={{ width: '78%' }} />
-                      </div>
-                      <span className="text-sm font-medium">78%</span>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -169,21 +176,30 @@ const Profile = () => {
         onClose={() => setShowModal(false)}
         title="Comparación Gratuita"
       >
-        <div className="space-y-4">
-          <p className="text-muted-foreground">
-            <strong>{profile.name}</strong> y tú comparten una alta compatibilidad del <strong>{profile.compatibility}%</strong>.
+        <div className="space-y-6">
+          <p className="text-muted-foreground text-lg">
+            <strong className="text-primary">{profile.name}</strong> y tú comparten una alta compatibilidad del <strong className="text-primary">{profile.compatibility}%</strong>.
           </p>
           
-          <div className="bg-muted/30 rounded-xl p-4">
-            <h4 className="font-semibold mb-2">Puntos en común:</h4>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Ambos valoran la comunicación profunda</li>
-              <li>• Intereses similares en arte y cultura</li>
-              <li>• Enfoque equilibrado hacia la vida social</li>
+          <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl p-6 border border-primary/10">
+            <h4 className="font-bold mb-4 text-primary">Puntos en común:</h4>
+            <ul className="text-muted-foreground space-y-2">
+              <li className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
+                <span>Ambos valoran la comunicación profunda</span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
+                <span>Intereses similares en arte y cultura</span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
+                <span>Enfoque equilibrado hacia la vida social</span>
+              </li>
             </ul>
           </div>
           
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground bg-muted/20 p-4 rounded-xl">
             Para un análisis completo y recomendaciones personalizadas, descarga el reporte premium.
           </p>
         </div>
