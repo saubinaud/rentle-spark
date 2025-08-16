@@ -1,4 +1,3 @@
-
 import { useNavigate } from 'react-router-dom';
 import { useFormStore } from '@/stores/useFormStore';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -8,27 +7,29 @@ import TransitionView from '@/components/TransitionView';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+// Los pasos del formulario
 const steps = ['General', 'Big Five', 'Dark Triad', 'MBTI', 'Zodiac'];
 
-const questions = {
+// Estructura de preguntas (se llenará luego con tus datasets reales)
+const questions: Record<number, { question: string; options: string[] }> = {
   0: {
-    question: "¿Qué actividad disfrutas más en tu tiempo libre?",
-    options: ["Leer libros", "Salir con amigos", "Hacer ejercicio", "Ver series", "Viajar", "Cocinar"],
+    question: "Pregunta de ejemplo General (luego sustituir)",
+    options: ["Opción 1", "Opción 2", "Opción 3"],
   },
   1: {
-    question: "¿Cómo te describes en situaciones sociales?",
-    options: ["Muy extrovertido", "Algo extrovertido", "Equilibrado", "Algo introvertido", "Muy introvertido"],
+    question: "Pregunta de ejemplo Big Five (luego sustituir)",
+    options: ["Totalmente de acuerdo", "De acuerdo", "Neutral", "En desacuerdo", "Totalmente en desacuerdo"],
   },
   2: {
-    question: "¿Qué tan importante es para ti ganar en una competencia?",
-    options: ["Extremadamente importante", "Muy importante", "Moderadamente importante", "Poco importante", "Nada importante"],
+    question: "Pregunta de ejemplo Dark Triad (luego sustituir)",
+    options: ["Muy de acuerdo", "De acuerdo", "Neutral", "En desacuerdo", "Muy en desacuerdo"],
   },
   3: {
-    question: "¿Prefieres planificar con anticipación o ser espontáneo?",
-    options: ["Siempre planifico", "Generalmente planifico", "Depende de la situación", "Generalmente espontáneo", "Siempre espontáneo"],
+    question: "Pregunta de ejemplo MBTI (luego sustituir)",
+    options: ["Opción A", "Opción B"],
   },
   4: {
-    question: "¿Cuál es tu signo zodiacal?",
+    question: "Selecciona tu signo zodiacal",
     options: ["Aries", "Tauro", "Géminis", "Cáncer", "Leo", "Virgo", "Libra", "Escorpio", "Sagitario", "Capricornio", "Acuario", "Piscis"],
   }
 };
@@ -56,8 +57,27 @@ const Form = () => {
     updateAnswers(stepKey, option);
   };
 
-  const handleNext = () => {
-    if (currentStep === 4) {
+  const handleNext = async () => {
+    if (currentStep === steps.length - 1) {
+      // 🚀 Al terminar, enviamos todas las respuestas al backend
+      const payload = {
+        general,
+        big5,
+        dark,
+        mbti,
+        zodiac,
+      };
+
+      try {
+        await fetch("https://tu-webhook-aqui.com", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } catch (err) {
+        console.error("Error enviando datos:", err);
+      }
+
       navigate('/results');
     } else {
       nextStep();
@@ -75,7 +95,7 @@ const Form = () => {
           <div className="mb-12">
             <Stepper 
               currentStep={currentStep} 
-              totalSteps={5} 
+              totalSteps={steps.length} 
               steps={steps} 
             />
           </div>
@@ -163,7 +183,7 @@ const Form = () => {
               disabled={!canProceed}
               className="btn-primary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span>{currentStep === 4 ? 'Ver Resultados' : 'Siguiente'}</span>
+              <span>{currentStep === steps.length - 1 ? 'Enviar respuestas' : 'Siguiente'}</span>
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
