@@ -3,37 +3,48 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Your Credits - Rentle Match</title>
-    <!-- Estilos globales (asegúrate que sea el mismo archivo que usas en index.html) -->
+    <title>Credits - Rentle Match</title>
+    <!-- Tailwind global -->
     <link href="/dist/output.css" rel="stylesheet">
   </head>
-  <body class="bg-gray-50 font-sans antialiased text-gray-800">
-    <!-- Navbar / header (igual que en otras páginas) -->
-    <header class="w-full bg-white shadow-sm">
+  <body class="bg-gray-50 font-sans text-gray-800">
+    <!-- Header con logo fijo arriba -->
+    <header class="w-full bg-white shadow-sm sticky top-0 z-50">
       <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-        <img src="/assets/logo.png" alt="Rentle Match" class="h-8" />
-        <nav class="space-x-4">
-          <a href="/index.html" class="text-gray-600 hover:text-indigo-600">Home</a>
-          <a href="/profile.html" class="text-gray-600 hover:text-indigo-600">Profile</a>
+        <div class="flex items-center space-x-2">
+          <img src="/assets/logo.png" alt="Rentle Match" class="h-8" />
+          <span class="text-lg font-bold text-gray-800">Rentle Match</span>
+        </div>
+        <nav class="space-x-6">
+          <a href="/index.html" class="hover:text-indigo-600">Home</a>
+          <a href="/profile.html" class="hover:text-indigo-600">Profile</a>
           <a href="/credits.html" class="text-indigo-600 font-semibold">Credits</a>
         </nav>
       </div>
     </header>
 
-    <!-- Contenido principal -->
-    <main class="flex items-center justify-center min-h-[80vh] px-4">
-      <div class="bg-white shadow-md rounded-2xl p-8 max-w-md w-full text-center">
-        <h1 class="text-3xl font-bold mb-4">Your Credits</h1>
+    <!-- Contenido -->
+    <main class="max-w-3xl mx-auto px-4 py-12">
+      <div class="bg-white shadow rounded-2xl p-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">Your Credits</h1>
         <p class="text-lg text-gray-600 mb-6">
           You currently have
-          <span class="font-semibold text-indigo-600">3</span>
-          credits available.
+          <span class="font-semibold text-indigo-600">3</span> free credits available.
         </p>
-        <button
-          class="px-6 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition"
-        >
-          Buy More Credits
-        </button>
+
+        <div class="space-y-4">
+          <button
+            class="w-full py-3 bg-indigo-600 text-white rounded-xl shadow hover:bg-indigo-700 transition"
+          >
+            Buy More Credits
+          </button>
+
+          <button
+            class="w-full py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition"
+          >
+            Back to Profile
+          </button>
+        </div>
       </div>
     </main>
 
