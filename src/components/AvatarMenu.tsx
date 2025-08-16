@@ -24,7 +24,7 @@ const AvatarMenu = () => {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-full bg-accent text-accent-foreground flex items-center justify-center font-semibold hover:scale-105 transition-transform duration-200"
+        className="w-12 h-12 rounded-2xl gradient-accent text-accent-foreground flex items-center justify-center font-bold hover:scale-105 transition-all duration-200 shadow-medium avatar-ring"
       >
         {user?.name?.charAt(0).toUpperCase() || 'U'}
       </button>
@@ -35,7 +35,7 @@ const AvatarMenu = () => {
             className="fixed inset-0 z-10" 
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute top-12 right-0 w-48 bg-popover border border-border rounded-2xl shadow-lg z-20 py-2">
+          <div className="absolute top-16 right-0 w-56 bg-popover border border-border/50 rounded-2xl shadow-strong z-20 py-2 backdrop-blur-md">
             {menuItems.map((item, index) => (
               <button
                 key={index}
@@ -47,9 +47,11 @@ const AvatarMenu = () => {
                   }
                   setIsOpen(false);
                 }}
-                className="w-full text-left px-4 py-3 hover:bg-muted flex items-center space-x-3 text-sm"
+                className="w-full text-left px-4 py-3 hover:bg-muted/50 flex items-center space-x-3 text-sm transition-all duration-200 font-medium first:rounded-t-2xl last:rounded-b-2xl"
               >
-                <item.icon className="w-4 h-4" />
+                <div className="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <item.icon className="w-4 h-4 text-primary" />
+                </div>
                 <span>{item.label}</span>
               </button>
             ))}

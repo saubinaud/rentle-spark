@@ -7,34 +7,47 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 240 6% 10%;
+    --foreground: 0 0% 13%;
 
-    --card: 240 4% 97.5%;
-    --card-foreground: 240 6% 10%;
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 13%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 6% 10%;
+    --popover-foreground: 0 0% 13%;
 
-    --primary: 217 33% 17%;
+    --primary: 164 48% 22%;
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 215 20% 65%;
-    --secondary-foreground: 240 6% 10%;
+    --secondary: 45 48% 62%;
+    --secondary-foreground: 0 0% 13%;
 
-    --muted: 240 4% 97.5%;
-    --muted-foreground: 240 4% 46%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 217 91% 60%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 45 48% 62%;
+    --accent-foreground: 0 0% 13%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 217 33% 17%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 164 48% 22%;
 
     --radius: 1rem;
+
+    /* Custom design tokens */
+    --yellow-primary: 45 48% 62%;
+    --yellow-light: 45 58% 75%;
+    --yellow-dark: 45 38% 45%;
+    
+    --green-primary: 164 48% 22%;
+    --green-light: 164 38% 35%;
+    --green-dark: 164 58% 15%;
+    
+    --text-primary: 0 0% 13%;
+    --text-secondary: 0 0% 45%;
+    --text-muted: 0 0% 60%;
   }
 
   * {
@@ -43,43 +56,115 @@
 
   body {
     @apply bg-background text-foreground font-body;
+    font-kerning: normal;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-title;
+    font-kerning: normal;
+    letter-spacing: -0.025em;
+  }
+
+  .text-tight {
+    letter-spacing: -0.025em;
+  }
+
+  .text-loose {
+    letter-spacing: 0.025em;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-4 rounded-2xl font-medium transition-all duration-200 hover:scale-[1.02] shadow-md hover:shadow-lg;
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-4 rounded-2xl font-medium transition-all duration-200 hover:scale-[1.02] shadow-md hover:shadow-lg border-2 border-transparent;
   }
 
   .btn-secondary {
     @apply bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-4 rounded-2xl font-medium transition-all duration-200 hover:scale-[1.02];
   }
 
+  .btn-accent {
+    @apply bg-accent text-accent-foreground hover:bg-accent/90 px-8 py-4 rounded-2xl font-medium transition-all duration-200 hover:scale-[1.02] shadow-md hover:shadow-lg border-2 border-transparent;
+  }
+
   .card-interactive {
-    @apply bg-card rounded-2xl p-6 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border border-border;
+    @apply bg-card rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.01] border border-border/50 backdrop-blur-sm;
+  }
+
+  .card-elevated {
+    @apply bg-card rounded-2xl p-8 shadow-lg border border-border/30 backdrop-blur-sm;
   }
 
   .input-field {
-    @apply w-full px-4 py-3 rounded-xl border border-input bg-background focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all duration-200;
+    @apply w-full px-4 py-3 rounded-xl border border-input bg-background focus:ring-2 focus:ring-accent/50 focus:border-accent/50 outline-none transition-all duration-200 placeholder:text-muted-foreground;
   }
 
   .chip-option {
-    @apply px-4 py-2 rounded-full border-2 border-border bg-background hover:border-accent hover:bg-accent/10 cursor-pointer transition-all duration-200 text-sm font-medium;
+    @apply px-4 py-2 rounded-full border-2 border-border bg-background hover:border-accent hover:bg-accent/10 cursor-pointer transition-all duration-200 text-sm font-medium hover:scale-[1.02];
   }
 
   .chip-selected {
-    @apply border-accent bg-accent text-accent-foreground;
+    @apply border-accent bg-accent text-accent-foreground shadow-sm;
   }
 
   .progress-bar {
-    @apply h-2 bg-muted rounded-full overflow-hidden;
+    @apply h-3 bg-muted rounded-full overflow-hidden shadow-inner;
   }
 
   .progress-fill {
-    @apply h-full bg-accent rounded-full transition-all duration-300 ease-out;
+    @apply h-full bg-gradient-to-r from-accent to-accent/80 rounded-full transition-all duration-500 ease-out shadow-sm;
+  }
+
+  .gradient-accent {
+    @apply bg-gradient-to-br from-accent via-accent to-accent/80;
+  }
+
+  .gradient-primary {
+    @apply bg-gradient-to-br from-primary via-primary to-primary/80;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+  }
+
+  .avatar-ring {
+    @apply ring-4 ring-accent/20 ring-offset-2 ring-offset-background;
+  }
+
+  .match-compatibility {
+    @apply bg-gradient-to-r from-accent/10 to-primary/10 text-primary px-3 py-1 rounded-full text-sm font-semibold border border-accent/20;
+  }
+}
+
+@layer utilities {
+  .kerning-tight {
+    letter-spacing: -0.025em;
+  }
+  
+  .kerning-normal {
+    letter-spacing: 0;
+  }
+  
+  .kerning-loose {
+    letter-spacing: 0.025em;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
