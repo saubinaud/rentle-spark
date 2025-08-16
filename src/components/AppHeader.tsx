@@ -1,30 +1,70 @@
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "../lib/utils";
 
-import { useAuthStore } from '@/stores/useAuthStore';
-import { useCreditStore } from '@/stores/useCreditStore';
-import AvatarMenu from './AvatarMenu';
+export default function AppHeader() {
+  const location = useLocation();
 
-const AppHeader = () => {
-  const { user } = useAuthStore();
-  const { freeLeft, paidLeft } = useCreditStore();
+  const navItems = [
+    { name: "My Profile", href: "/profile" },
+    { name: "Matches", href: "/matches" },
+    { name: "Credits", href: "/credits" },
+  ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/50 shadow-soft">
-      <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-8">
-          <h1 className="text-3xl font-bold font-title text-gradient kerning-tight">Rentle</h1>
-          {user && (
-            <div className="hidden md:flex items-center space-x-3 bg-muted/30 px-4 py-2 rounded-xl border border-border/50">
-              <div className="w-2 h-2 bg-accent rounded-full animate-pulse-subtle"></div>
-              <span className="text-sm font-medium text-muted-foreground">Credits:</span>
-              <span className="font-bold text-primary">{freeLeft + paidLeft}</span>
-            </div>
-          )}
-        </div>
-        
-        {user && <AvatarMenu />}
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b">
+      <div className="h-16 max-w-6xl mx-auto px-4 flex items-center justify-between">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2">
+          <img
+            src="/logo.png"
+            alt="Rentle Match"
+            className="h-8 w-auto"
+          />
+          <span className="font-serif text-xl font-bold text-neutral-800">
+            Rentle
+          </span>
+        </Link>
+
+        {/* Navigation */}
+        <nav className="flex items-center gap-6">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              to={item.href}
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-neutral-900",
+                location.pathname === item.href
+                  ? "text-neutral-900"
+                  : "text-neutral-500"
+              )}
+            >
+              {item.name}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Profile button (placeholder) */}
+        <Link
+          to="/profile"
+          className="rounded-full bg-neutral-200 hover:bg-neutral-300 transition-colors h-8 w-8 flex items-center justify-center text-neutral-700"
+        >
+          <span className="sr-only">Profile</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5.121 17.804A9 9 0 1118.364 4.56M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+          </svg>
+        </Link>
       </div>
     </header>
   );
-};
-
-export default AppHeader;
+}
