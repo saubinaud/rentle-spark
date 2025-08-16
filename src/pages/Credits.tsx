@@ -1,52 +1,60 @@
+// src/pages/Credits.tsx
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import AppHeader from '@/components/AppHeader';
-import { CreditCard, Sparkles, Check } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Sparkles, Check, CreditCard } from 'lucide-react';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useCreditStore } from '@/stores/useCreditStore';
 import { getCredits, buyCredits } from '@/lib/creditsApi';
 
 const PACKS = [
   { name: 'Starter', price: '€9.99', credits: 10, features: ['10 new comparisons', 'Basic reports', 'Unlimited matches'] },
-  { name: 'Pro',     price: '€19.99', credits: 25, features: ['25 new comparisons', 'Priority processing', 'Premium support'] },
-  { name: 'Max',     price: '€39.99', credits: 60, features: ['60 new comparisons', 'Premium reports', 'VIP support'] },
+  { name: 'Pro',     price: '€19.99', credits: 25, features: ['Priority processing', 'Premium support', '+25 comparisons'] },
+  { name: 'Max',     price: '€39.99', credits: 60, features: ['Premium reports', 'VIP support', '+60 comparisons'] },
 ];
 
 export default function Credits() {
-  const { freeLeft, paidLeft, setCounts, addPaid } = useCreditStore();
+  const { user } = useAuthStore();
+  // usamos any para permitir métodos opcionales si aún no actualizaste el store
+  const creditStore = useCreditStore() as any;
+  const { freeLeft, paidLeft } = creditStore;
+
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
-    // Al entrar, intenta sincronizar con backend/mock
+    // sincroniza al entrar (mock o n8n)
     (async () => {
       try {
-        // si no hay n8n, creditsApi devuelve mock
-        const c = await getCredits('me@example.com'); // TODO: reemplazar por user.email real
-        setCounts(c.freeLeft, c.paidLeft);
+        const email = user?.email || 'me@example.com';
+        const c = await getCredits(email);
+        creditStore?.setCounts?.(c.freeLeft, c.paidLeft);
       } catch {
-        // si falla, dejamos los del store
+        // si falla, dejamos los valores locales
       }
     })();
-  }, [setCounts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.email]);
 
   async function handleBuy(packCredits: number, label: string) {
     setLoading(true);
     try {
-      const c = await buyCredits('me@example.com', packCredits); // n8n o mock
-      // si hay API real, setCounts reflejará ambos; si es mock local, también
-      setCounts(c.freeLeft, c.paidLeft);
-      // además, sumamos localmente (por si el backend tarda): no hace daño
-      addPaid(packCredits);
-      setToast(`✅ Purchased ${label} (+${packCredits} credits)!`);
-    } catch (e: any) {
-      setToast(`⚠️ Could not complete purchase.`);
+      const email = user?.email || 'me@example.com';
+      const c = await buyCredits(email, packCredits); // mock o n8n
+      creditStore?.setCounts?.(c.freeLeft, c.paidLeft);
+      // respaldo local por si la API tarda
+      creditStore?.addPaid?.(packCredits);
+      showToast(`✅ Purchased ${label} (+${packCredits} credits)!`);
+    } catch {
+      showToast('⚠️ Could not complete purchase.');
     } finally {
       setLoading(false);
-      hideToastLater();
     }
   }
 
-  function hideToastLater() {
+  function showToast(msg: string) {
+    setToast(msg);
     setTimeout(() => setToast(null), 3000);
   }
 
@@ -88,13 +96,14 @@ export default function Credits() {
                   <li key={f} className="flex items-center gap-2"><Check size={16}/>{f}</li>
                 ))}
               </ul>
-              <button
-                className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2 hover:bg-gray-50 disabled:opacity-50"
+              <Button
+                className="mt-6 inline-flex items-center gap-2"
+                variant="outline"
                 onClick={() => handleBuy(p.credits, p.name)}
                 disabled={loading}
               >
                 <CreditCard size={16}/> {loading ? 'Processing…' : 'Buy'}
-              </button>
+              </Button>
             </motion.div>
           ))}
         </div>
