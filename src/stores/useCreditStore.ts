@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 
 interface CreditState {
@@ -6,11 +5,16 @@ interface CreditState {
   paidLeft: number;
   consumeOne: () => void;
   resetCredits: () => void;
+  /** NUEVO: setea ambos contadores (para sincronizar con API/mock) */
+  setCounts: (freeLeft: number, paidLeft: number) => void;
+  /** NUEVO: suma créditos pagados (para “comprar” packs) */
+  addPaid: (n: number) => void;
 }
 
 export const useCreditStore = create<CreditState>((set, get) => ({
   freeLeft: 3,
   paidLeft: 0,
+
   consumeOne: () => {
     const { freeLeft, paidLeft } = get();
     if (freeLeft > 0) {
@@ -19,7 +23,15 @@ export const useCreditStore = create<CreditState>((set, get) => ({
       set({ paidLeft: paidLeft - 1 });
     }
   },
+
   resetCredits: () => {
     set({ freeLeft: 3, paidLeft: 0 });
+  },
+
+  setCounts: (freeLeft, paidLeft) => set({ freeLeft, paidLeft }),
+
+  addPaid: (n) => {
+    const { paidLeft } = get();
+    set({ paidLeft: paidLeft + Math.max(0, n || 0) });
   },
 }));
