@@ -1,100 +1,170 @@
+// src/pages/Results.tsx
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getTopMatches } from "@/lib/matchesApi"; // <- usa servicios (fallback a mock si no hay n8n)
+import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { cn } from "@/lib/utils";
 
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useMatchStore } from '@/stores/useMatchStore';
-import { useCreditStore } from '@/stores/useCreditStore';
-import AppHeader from '@/components/AppHeader';
-import ModernMatchCard from '@/components/ModernMatchCard';
-import EmptyState from '@/components/EmptyState';
-import LoadingOverlay from '@/components/LoadingOverlay';
-import { Sparkles, RefreshCw } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
+type MatchCardItem = {
+  id: string;
+  name: string;
+  university: string;
+  photoUrl?: string;
+  score: number; // 0..1
+  explanation_short?: string;
+};
 
-const Results = () => {
+export default function Results() {
   const navigate = useNavigate();
-  const { matches, loading, generateMatches } = useMatchStore();
-  const { freeLeft, paidLeft, consumeOne } = useCreditStore();
+  const { user } = useAuthStore();
+  const [loading, setLoading] = useState(false);
+  const [list, setList] = useState<MatchCardItem[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (matches.length === 0 && !loading) {
-      handleGenerateMatches();
+  const email = user?.email || "";
+
+  const loadMatches = async () => {
+    if (!email) {
+      setError("No hay email de usuario. Inicia sesión o completa el onboarding.");
+      return;
     }
-  }, []);
-
-  const handleGenerateMatches = async () => {
-    if (freeLeft + paidLeft > 0) {
-      consumeOne();
-      await generateMatches();
-    } else {
-      navigate('/credits');
+    setError(null);
+    setLoading(true);
+    try {
+      // getTopMatches devuelve [{ user, compatibility }]
+      const data = await getTopMatches(email, 0.94, 10);
+      const normalized: MatchCardItem[] = data.map((m) => ({
+        id: m.user.id,
+        name: m.user.name,
+        university: m.user.university,
+        photoUrl: m.user.photoUrl,
+        score: Math.max(0, Math.min(1, (m.compatibility || 0) / 100)),
+        explanation_short: (m as any).explanation_short,
+      }));
+      // ordena desc por score por si el backend no viene ordenado
+      normalized.sort((a, b) => b.score - a.score);
+      setList(normalized);
+    } catch (e: any) {
+      setError(e?.message || "No se pudieron obtener los matches.");
+      setList([]);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const totalCredits = freeLeft + paidLeft;
+  useEffect(() => {
+    // carga inicial
+    loadMatches();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [email]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <AppHeader />
-      
-      <AnimatePresence>
-        {loading && <LoadingOverlay message="Analizando tu personalidad y generando matches perfectos..." />}
-      </AnimatePresence>
-
-      <div className="pt-24 px-6">
-        <div className="container mx-auto max-w-6xl">
-          <motion.div 
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <h1 className="text-5xl font-bold font-title mb-6 text-gradient kerning-tight">
-              Tus Matches Perfectos
-            </h1>
-            <p className="text-muted-foreground text-xl mb-8 max-w-2xl mx-auto">
-              Descubre estudiantes con los que tienes una alta compatibilidad basada en tu personalidad y preferencias
-            </p>
-
-            <button
-              onClick={handleGenerateMatches}
-              disabled={totalCredits === 0 || loading}
-              className="btn-primary flex items-center space-x-3 mx-auto text-lg"
-            >
-              <RefreshCw className="w-5 h-5" />
-              <span>Generar Nuevos Matches</span>
-            </button>
-          </motion.div>
-
-          {matches.length > 0 ? (
-            <motion.div 
-              className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              {matches.map((match, index) => (
-                <ModernMatchCard key={match.id} match={match} index={index} />
-              ))}
-            </motion.div>
-          ) : !loading && (
-            <EmptyState
-              title="No hay matches disponibles"
-              description="Genera tu primera comparación para descubrir estudiantes compatibles contigo."
-              icon={<Sparkles className="w-full h-full" />}
-              action={
-                <button
-                  onClick={handleGenerateMatches}
-                  disabled={totalCredits === 0}
-                  className="btn-primary"
-                >
-                  Generar Mis Primeros Matches
-                </button>
-              }
-            />
-          )}
+    <div className="max-w-6xl mx-auto p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-serif text-2xl">Your top matches</h2>
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={() => navigate("/me")}>
+            My profile
+          </Button>
+          <Button onClick={loadMatches} disabled={loading}>
+            {loading ? "Calculating..." : "Generate new comparison"}
+          </Button>
         </div>
+      </div>
+
+      {error && (
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      {loading ? (
+        <LoadingSkeleton />
+      ) : list.length === 0 ? (
+        <EmptyState label="No results ≥ 94%. Invite more people or try again later." />
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {list.map((m) => (
+            <Card key={m.id} item={m} onClick={() => navigate(`/profile/${m.id}`)} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- UI helpers (local, sin dependencias del resto) ---------- */
+
+function Card({
+  item,
+  onClick,
+}: {
+  item: MatchCardItem;
+  onClick: () => void;
+}) {
+  const pct = Math.round(item.score * 100);
+  return (
+    <div
+      className="bg-white rounded-2xl shadow p-4 hover:shadow-lg transition cursor-pointer"
+      onClick={onClick}
+    >
+      <div className="flex items-center gap-3">
+        <img
+          src={item.photoUrl || `https://i.pravatar.cc/120?u=${encodeURIComponent(item.id)}`}
+          alt={item.name}
+          className="w-12 h-12 rounded-full object-cover"
+        />
+        <div className="min-w-0">
+          <div className="font-medium truncate">{item.name}</div>
+          <div className="text-xs text-gray-600">
+            <span className="px-2 py-0.5 rounded-full bg-gray-100 border border-gray-200">
+              {item.university || "—"}
+            </span>
+          </div>
+        </div>
+        <div className="ml-auto text-right">
+          <div className="text-sm">Match</div>
+          <div className="text-lg font-semibold">{pct}%</div>
+        </div>
+      </div>
+      {!!item.explanation_short && (
+        <p className="text-sm text-gray-600 mt-3">{item.explanation_short}</p>
+      )}
+      <div className="mt-4">
+        <button className="px-3 py-2 rounded-xl border hover:bg-gray-50">
+          View profile
+        </button>
       </div>
     </div>
   );
-};
+}
 
-export default Results;
+function EmptyState({ label }: { label: string }) {
+  return (
+    <div className="bg-white rounded-2xl shadow p-8 text-center">
+      <div className="w-10 h-10 rounded-full bg-gray-200 mx-auto mb-3" />
+      <p className="text-gray-600">{label}</p>
+    </div>
+  );
+}
+
+function LoadingSkeleton() {
+  return (
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="bg-white rounded-2xl shadow p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-gray-200" />
+            <div className="flex-1">
+              <div className="h-3 bg-gray-200 rounded w-32" />
+              <div className="mt-2 h-3 bg-gray-100 rounded w-24" />
+            </div>
+            <div className="w-10 h-6 bg-gray-200 rounded" />
+          </div>
+          <div className="mt-4 h-4 bg-gray-100 rounded" />
+        </div>
+      ))}
+    </div>
+  );
+}
