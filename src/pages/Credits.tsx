@@ -8,30 +8,32 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useCreditStore } from '@/stores/useCreditStore';
 import { getCredits, buyCredits } from '@/lib/creditsApi';
 
+// Paquetes (mock/real)
 const PACKS = [
-  { name: 'Starter', price: '€9.99', credits: 10, features: ['10 new comparisons', 'Basic reports', 'Unlimited matches'] },
-  { name: 'Pro',     price: '€19.99', credits: 25, features: ['Priority processing', 'Premium support', '+25 comparisons'] },
-  { name: 'Max',     price: '€39.99', credits: 60, features: ['Premium reports', 'VIP support', '+60 comparisons'] },
+  { name: 'Starter', price: '€9.99', credits: 10, features: ['10 comparisons', 'Basic reports'] },
+  { name: 'Pro',     price: '€19.99', credits: 25, features: ['Priority processing', 'Premium support'] },
+  { name: 'Max',     price: '€39.99', credits: 60, features: ['Premium reports', 'VIP support'] },
 ];
 
 export default function Credits() {
   const { user } = useAuthStore();
-  // usamos any para permitir métodos opcionales si aún no actualizaste el store
+  // usamos el store tal cual viene en tu repo; si añadiste setters, los usamos opcionalmente
   const creditStore = useCreditStore() as any;
   const { freeLeft, paidLeft } = creditStore;
 
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
+  // Sincroniza al entrar (si hay n8n → real; si no → mock)
   useEffect(() => {
-    // sincroniza al entrar (mock o n8n)
     (async () => {
       try {
         const email = user?.email || 'me@example.com';
         const c = await getCredits(email);
+        // si actualizaste el store con setCounts, se sincroniza; si no, lo ignoramos
         creditStore?.setCounts?.(c.freeLeft, c.paidLeft);
       } catch {
-        // si falla, dejamos los valores locales
+        // dejamos los valores locales del store
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -41,9 +43,9 @@ export default function Credits() {
     setLoading(true);
     try {
       const email = user?.email || 'me@example.com';
-      const c = await buyCredits(email, packCredits); // mock o n8n
+      const c = await buyCredits(email, packCredits); // n8n o mock
       creditStore?.setCounts?.(c.freeLeft, c.paidLeft);
-      // respaldo local por si la API tarda
+      // respaldo local por si tu store aún no tiene setCounts
       creditStore?.addPaid?.(packCredits);
       showToast(`✅ Purchased ${label} (+${packCredits} credits)!`);
     } catch {
@@ -89,13 +91,16 @@ export default function Credits() {
                 </div>
                 <h3 className="font-serif text-xl">{p.name}</h3>
               </div>
+
               <div className="text-2xl font-semibold mb-4">{p.price}</div>
+
               <ul className="text-sm text-gray-700 space-y-2 flex-1">
                 <li className="flex items-center gap-2"><Check size={16}/> +{p.credits} credits</li>
                 {p.features.map(f => (
                   <li key={f} className="flex items-center gap-2"><Check size={16}/>{f}</li>
                 ))}
               </ul>
+
               <Button
                 className="mt-6 inline-flex items-center gap-2"
                 variant="outline"
