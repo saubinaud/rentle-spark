@@ -1,4 +1,3 @@
-// src/pages/Profile.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,8 +10,11 @@ type MatchCardItem = {
   id: string;
   name: string;
   university: string;
+  photo?: string;
   photoUrl?: string;
-  score: number; // 0..1
+  compatibility?: number; // 0..100 si viene del mock store
+  score?: number;         // 0..1 si viene de la nueva Results
+  teaser?: string;
 };
 
 export default function Profile() {
@@ -20,29 +22,36 @@ export default function Profile() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { matches } = useMatchStore();
-  const { freeCredits, paidCredits, setFreeCredits, setPaidCredits } = useCreditStore();
+  const { freeLeft, paidLeft, consumeOne } = useCreditStore();
 
   const [loading, setLoading] = useState(false);
   const [miniText, setMiniText] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showMini, setShowMini] = useState(false);
 
-  // Busca el match por id (cae al primero si no lo encuentra)
   const item: MatchCardItem | undefined = useMemo(() => {
     return (matches as any[]).find((m) => m.id === id) || (matches as any[])[0];
   }, [matches, id]);
 
   useEffect(() => {
-    if (!item) {
-      // Si no hay item, vuelve a resultados
-      navigate("/results");
-    }
+    if (!item) navigate("/results");
   }, [item, navigate]);
+
+  const normalizedScore = (() => {
+    if (!item) return 0;
+    if (typeof item.score === "number") return Math.max(0, Math.min(1, item.score));
+    if (typeof item.compatibility === "number") return Math.max(0, Math.min(1, item.compatibility / 100));
+    return 0;
+  })();
 
   async function handleFreeComparison() {
     if (!item) return;
     if (!user?.email) {
       setError("No user session. Please log in.");
+      return;
+    }
+    if (freeLeft <= 0 && paidLeft <= 0) {
+      setError("No credits available. Please buy more.");
       return;
     }
     setError(null);
@@ -51,14 +60,8 @@ export default function Profile() {
       const res = await requestFreeSummary(user.email, item.id);
       setMiniText(res.text || "");
       setShowMini(true);
-
-      // Intenta actualizar la store de créditos si existen los setters
-      try {
-        if (typeof setFreeCredits === "function") setFreeCredits(res.credits_left.freeLeft);
-        if (typeof setPaidCredits === "function") setPaidCredits(res.credits_left.paidLeft);
-      } catch {
-        // no-op si no existen acciones
-      }
+      // sincroniza el UI local con la política: consumimos 1 crédito del store
+      consumeOne();
     } catch (e: any) {
       setError(e?.message || "Could not fetch comparison.");
     } finally {
@@ -74,15 +77,13 @@ export default function Profile() {
     );
   }
 
-  const pct = Math.round(item.score * 100);
+  const pct = Math.round(normalizedScore * 100);
+  const avatar = item.photoUrl || item.photo || `https://i.pravatar.cc/160?u=${encodeURIComponent(item.id)}`;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="flex items-center gap-4">
-        <img
-          src={item.photoUrl || `https://i.pravatar.cc/160?u=${encodeURIComponent(item.id)}`}
-          className="w-20 h-20 rounded-full object-cover"
-        />
+        <img src={avatar} className="w-20 h-20 rounded-full object-cover" />
         <div>
           <h2 className="font-serif text-2xl">{item.name}</h2>
           <div className="text-sm text-gray-600 flex items-center gap-2">
@@ -105,7 +106,6 @@ export default function Profile() {
           <div className="bg-white rounded-2xl shadow p-5">
             <h3 className="font-serif text-lg mb-2">About</h3>
             <p className="text-sm text-gray-700">
-              {/* Texto público corto (cuando lo generemos de verdad, vendrá de la DB) */}
               This person enjoys balanced routines, likes tidy spaces and communicates with empathy.
               A good match for proactive and respectful roomies.
             </p>
@@ -114,10 +114,11 @@ export default function Profile() {
           <div className="bg-white rounded-2xl shadow p-5 mt-4">
             <h3 className="font-serif text-lg mb-2">Free comparison</h3>
             <p className="text-sm text-gray-600">
-              You have <strong>{freeCredits}</strong> free credits left.
+              You have <strong>{freeLeft}</strong> free credits left
+              {paidLeft > 0 ? <> + <strong>{paidLeft}</strong> paid</> : null}.
             </p>
             <div className="mt-3 flex gap-2">
-              <Button onClick={handleFreeComparison} disabled={loading || freeCredits <= 0}>
+              <Button onClick={handleFreeComparison} disabled={loading || (freeLeft <= 0 && paidLeft <= 0)}>
                 {loading ? "Generating..." : "View free comparison"}
               </Button>
               <Button variant="outline" onClick={() => navigate("/credits")}>
@@ -145,7 +146,6 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Modal mini análisis */}
       {showMini && (
         <Modal title="Mini comparison" onClose={() => setShowMini(false)}>
           <p className="text-sm text-gray-700 whitespace-pre-wrap">
@@ -156,8 +156,6 @@ export default function Profile() {
     </div>
   );
 }
-
-/* ---------- UI helpers locales ---------- */
 
 function EmptyState({ label }: { label: string }) {
   return (
@@ -184,9 +182,7 @@ function Modal({
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5">
           <div className="flex items-center justify-between">
             <h4 className="font-serif text-lg">{title}</h4>
-            <button onClick={onClose} className="w-8 h-8 rounded-full hover:bg-gray-100">
-              ✕
-            </button>
+            <button onClick={onClose} className="w-8 h-8 rounded-full hover:bg-gray-100">✕</button>
           </div>
           <div className="mt-3">{children}</div>
         </div>
