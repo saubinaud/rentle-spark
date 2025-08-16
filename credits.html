@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rentle Match – Credits</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <img src="assets/logo.png" alt="Rentle Match" class="logo" />
+    <nav>
+      <a href="profile.html">My Profile</a>
+      <a href="matches.html">Matches</a>
+      <a href="credits.html" class="active">Credits</a>
+    </nav>
+  </header>
+
+  <main class="credits-container">
+    <h1>My Credits</h1>
+
+    <div class="credits-box">
+      <p>You currently have <span id="credit-count">0</span> credits available.</p>
+    </div>
+
+    <div class="credits-actions">
+      <button id="use-credit">Use 1 Credit</button>
+      <button id="buy-credit">Buy +5 Credits</button>
+      <button id="unlock-premium">Unlock Premium Report</button>
+    </div>
+
+    <div id="message" class="message"></div>
+  </main>
+
+  <script src="credits.js"></script>
+</body>
+</html>
