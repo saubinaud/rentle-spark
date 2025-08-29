@@ -185,7 +185,10 @@ function MatchCard({
         </div>
         <div className="ml-auto text-right">
           <div className="text-sm text-gray-600">Match</div>
-          <div className="text-lg font-semibold" aria-label={`${pct} por ciento de compatibilidad`}>
+          <div
+            className="text-lg font-semibold"
+            aria-label={`${pct} por ciento de compatibilidad`}
+          >
             {pct}%
           </div>
         </div>
@@ -213,7 +216,7 @@ function MatchCard({
 function EmptyState({ label }: { label: string }) {
   return (
     <div className="bg-white rounded-2xl shadow p-8 text-center" role="status">
-      <div 
+      <div
         className="w-10 h-10 rounded-full bg-gray-200 mx-auto mb-3"
         aria-hidden="true"
       ></div>
@@ -228,18 +231,18 @@ function EmptyState({ label }: { label: string }) {
  */
 function LoadingSkeleton() {
   return (
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" aria-label="Cargando resultados...">
+    <div aria-label="Cargando resultados..." className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {Array.from({ length: 6 }).map((_, i) => (
         <div className="bg-white rounded-2xl shadow p-4" key={i}>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gray-200 animate-pulse" aria-hidden="true"></div>
+            <div aria-hidden="true" className="w-12 h-12 rounded-full bg-gray-200 animate-pulse"></div>
             <div className="flex-1">
-              <div className="h-3 bg-gray-200 rounded w-32 animate-pulse" aria-hidden="true"></div>
-              <div className="mt-2 h-3 bg-gray-100 rounded w-24 animate-pulse" aria-hidden="true"></div>
+              <div aria-hidden="true" className="h-3 bg-gray-200 rounded w-32 animate-pulse"></div>
+              <div aria-hidden="true" className="mt-2 h-3 bg-gray-100 rounded w-24 animate-pulse"></div>
             </div>
-            <div className="w-10 h-6 bg-gray-200 rounded animate-pulse" aria-hidden="true"></div>
+            <div aria-hidden="true" className="w-10 h-6 bg-gray-200 rounded animate-pulse"></div>
           </div>
-          <div className="mt-4 h-4 bg-gray-100 rounded animate-pulse" aria-hidden="true"></div>
+          <div aria-hidden="true" className="mt-4 h-4 bg-gray-100 rounded animate-pulse"></div>
         </div>
       ))}
     </div>
