@@ -1,17 +1,25 @@
+// src/pages/Form.tsx
 import { useNavigate } from 'react-router-dom';
 import { useFormStore } from '@/stores/useFormStore';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Button } from '@/components/ui/button';
 import AppHeader from '@/components/AppHeader';
 import Stepper from '@/components/Stepper';
 import TransitionView from '@/components/TransitionView';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+// Definición de tipos
+interface Question {
+  question: string;
+  options: string[];
+}
+
 // Los pasos del formulario
 const steps = ['General', 'Big Five', 'Dark Triad', 'MBTI', 'Zodiac'];
 
-// Estructura de preguntas (se llenará luego con tus datasets reales)
-const questions: Record<number, { question: string; options: string[] }> = {
+// Estructura de preguntas (se llenará luego con datasets reales)
+const questions: Record<number, Question> = {
   0: {
     question: "Pregunta de ejemplo General (luego sustituir)",
     options: ["Opción 1", "Opción 2", "Opción 3"],
@@ -34,6 +42,10 @@ const questions: Record<number, { question: string; options: string[] }> = {
   }
 };
 
+/**
+ * Componente Form - Formulario multi-paso para recopilar respuestas del usuario
+ * Incluye pasos para General, Big Five, Dark Triad, MBTI y Zodiac
+ */
 const Form = () => {
   const navigate = useNavigate();
   const { 
@@ -51,15 +63,22 @@ const Form = () => {
   const currentAnswer = [general, big5, dark, mbti, zodiac][currentStep];
   const currentQuestion = questions[currentStep as keyof typeof questions];
 
+  /**
+   * Maneja la selección de una opción
+   * @param option - Opción seleccionada por el usuario
+   */
   const handleSelect = (option: string) => {
-    const stepKeys = ['general', 'big5', 'dark', 'mbti', 'zodiac'];
+    const stepKeys = ['general', 'big5', 'dark', 'mbti', 'zodiac'] as const;
     const stepKey = stepKeys[currentStep];
     updateAnswers(stepKey, option);
   };
 
+  /**
+   * Maneja el avance al siguiente paso o envío final
+   */
   const handleNext = async () => {
     if (currentStep === steps.length - 1) {
-      // 🚀 Al terminar, enviamos todas las respuestas al backend
+      // Al terminar, enviamos todas las respuestas al backend
       const payload = {
         general,
         big5,
@@ -77,7 +96,7 @@ const Form = () => {
       } catch (err) {
         console.error("Error enviando datos:", err);
       }
-
+      
       navigate('/results');
     } else {
       nextStep();
@@ -93,7 +112,7 @@ const Form = () => {
       <div className="pt-24 px-6">
         <div className="container mx-auto max-w-6xl">
           <div className="mb-12">
-            <Stepper 
+            <Stepper
               currentStep={currentStep} 
               totalSteps={steps.length} 
               steps={steps} 
@@ -127,7 +146,7 @@ const Form = () => {
                         className="flex items-center space-x-4 p-4 rounded-2xl border-2 border-border hover:border-primary/50 transition-all duration-200 hover:bg-primary/5 cursor-pointer"
                         onClick={() => handleSelect(option)}
                       >
-                        <RadioGroupItem value={option} id={option} className="text-primary" />
+                        <RadioGroupItem className="text-primary" id={option} value={option} />
                         <label 
                           htmlFor={option} 
                           className="text-lg font-medium cursor-pointer flex-1"
@@ -163,14 +182,15 @@ const Form = () => {
 
           {/* Navigation */}
           <div className="flex justify-between items-center mt-12 pt-8 border-t border-border">
-            <button
+            <Button
               onClick={prevStep}
               disabled={currentStep === 0}
               className="btn-outline flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="outline"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span>Anterior</span>
-            </button>
+              Anterior
+            </Button>
 
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
@@ -178,14 +198,14 @@ const Form = () => {
               </p>
             </div>
 
-            <button
+            <Button
               onClick={handleNext}
               disabled={!canProceed}
               className="btn-primary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span>{currentStep === steps.length - 1 ? 'Enviar respuestas' : 'Siguiente'}</span>
+              {currentStep === steps.length - 1 ? 'Enviar respuestas' : 'Siguiente'}
               <ArrowRight className="w-5 h-5" />
-            </button>
+            </Button>
           </div>
         </div>
       </div>
